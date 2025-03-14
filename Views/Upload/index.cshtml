@@ -1,0 +1,29 @@
+﻿@{
+    ViewBag.Title = "Upload Excel File";
+}
+
+<h2>Upload Excel File</h2>
+
+@using (Html.BeginForm("Index", "Upload", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <div>
+        <label>Select Excel File:</label><br />
+        <input type="file" name="file" accept=".xls,.xlsx" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Upload</button>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div style="color:red;">
+        @foreach (var error in ViewData.ModelState.Values)
+        {
+            foreach (var err in error.Errors)
+            {
+                <p>@err.ErrorMessage</p>
+            }
+        }
+    </div>
+}
