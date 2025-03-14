@@ -61,6 +61,39 @@ namespace BarkodaCevirme.Controllers
             }
         }
 
+        // POST: Upload/GenerateFromText
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GenerateFromText(string textData)
+        {
+            if (string.IsNullOrWhiteSpace(textData))
+            {
+                ModelState.AddModelError("", "Please enter some text.");
+                return View("Index");
+            }
+
+            try
+            {
+                // Split the text data into rows
+                var rowData = new List<string>(textData.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
+
+                // Generate PDF with barcodes
+                var pdfBytes = PdfGenerator.Generate(rowData);
+
+                // Store PDF in Session for Preview/Download
+                Session["GeneratedPdf"] = pdfBytes;
+
+                // Return JSON response with URL to open in new tab
+                var pdfUrl = Url.Action("GetTempPdf", "Upload");
+                return Json(new { success = true, url = pdfUrl });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error generating PDF: " + ex.Message);
+                return View("Index");
+            }
+        }
+
         // GET: Upload/Preview
         public ActionResult Preview()
         {
