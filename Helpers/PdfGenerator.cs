@@ -12,64 +12,63 @@ namespace BarkodaCevirme.Helpers
     {
         /// <summary>
         /// Generates a PDF (as byte[]) containing barcodes for each string in dataList.
-        /// Places barcodes in a grid (4 columns per row).
+        /// Arranges them in a grid (4 columns per row) with styling similar to your sample.
+        /// The barcode text (code) is shown only once, as part of the barcode image.
         /// </summary>
         public static byte[] Generate(List<string> dataList)
         {
             using (var ms = new MemoryStream())
             {
-                // iTextSharp Document setup
+                // Setup document with A4 size and margins.
                 var doc = new Document(PageSize.A4, 20f, 20f, 20f, 20f);
                 var writer = PdfWriter.GetInstance(doc, ms);
                 doc.Open();
 
-                // Create a table with 4 columns
-                var table = new PdfPTable(4);
-                table.WidthPercentage = 100;
-                // Explicitly use iTextSharp.text.Rectangle for NO_BORDER
+                // Create a table with 4 columns.
+                var table = new PdfPTable(4)
+                {
+                    WidthPercentage = 100,
+                    SpacingBefore = 10f,
+                    SpacingAfter = 10f
+                };
                 table.DefaultCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
-                table.SpacingBefore = 10f;
 
-                // For each item in dataList, generate a barcode cell
+                // For each barcode value, generate a barcode image and add to a cell.
                 foreach (var textValue in dataList)
                 {
-                    // Generate barcode image
+                    // Generate barcode image (ZXing returns a System.Drawing.Image).
                     System.Drawing.Image barcodeImage = GenerateBarcodeImage(textValue);
 
-                    // Convert System.Drawing.Image to iTextSharp.text.Image
+                    // Convert to iTextSharp image.
                     iTextSharp.text.Image pdfImage = iTextSharp.text.Image.GetInstance(barcodeImage, System.Drawing.Imaging.ImageFormat.Png);
-                    pdfImage.ScalePercent(70f); // adjust size if needed
+                    pdfImage.ScalePercent(70f); // Adjust scale as needed.
 
-                    // Create a cell, add the barcode image
-                    var cell = new PdfPCell();
-                    cell.Border = iTextSharp.text.Rectangle.NO_BORDER;
-                    cell.VerticalAlignment = Element.ALIGN_MIDDLE;
-                    cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                    // Create a cell for this barcode.
+                    var cell = new PdfPCell
+                    {
+                        Border = iTextSharp.text.Rectangle.NO_BORDER,
+                        HorizontalAlignment = Element.ALIGN_CENTER,
+                        VerticalAlignment = Element.ALIGN_MIDDLE,
+                        Padding = 5f
+                    };
 
-                    // Add the barcode image
+                    // Add only the barcode image (removing the duplicate text label).
                     cell.AddElement(pdfImage);
-
-                    // Optionally add the text label below the barcode
-                    var paragraph = new Paragraph(textValue, FontFactory.GetFont(FontFactory.HELVETICA, 10));
-                    paragraph.Alignment = Element.ALIGN_CENTER;
-                    cell.AddElement(paragraph);
 
                     table.AddCell(cell);
                 }
 
-                // If the last row doesn't have 4 columns, fill them with empty cells
+                // Fill empty cells if the last row is incomplete.
                 int remainder = dataList.Count % 4;
                 if (remainder != 0)
                 {
                     for (int i = 0; i < 4 - remainder; i++)
                     {
-                        table.AddCell(new PdfPCell() { Border = iTextSharp.text.Rectangle.NO_BORDER });
+                        table.AddCell(new PdfPCell { Border = iTextSharp.text.Rectangle.NO_BORDER });
                     }
                 }
 
-                // Add table to document
                 doc.Add(table);
-
                 doc.Close();
                 writer.Close();
 
@@ -78,7 +77,7 @@ namespace BarkodaCevirme.Helpers
         }
 
         /// <summary>
-        /// Generates a barcode image (Code128) from a string using ZXing.NET
+        /// Generates a barcode image (Code128) from a string using ZXing.NET.
         /// </summary>
         private static System.Drawing.Image GenerateBarcodeImage(string text)
         {
