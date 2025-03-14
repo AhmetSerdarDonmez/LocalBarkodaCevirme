@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using System.Web.Mvc;
-using BarkodaCevirme.Helpers;
+using BarkodaCevirme.Helpers; // Updated namespace
 
-namespace ExcelBarcodeWebApp.Controllers
+namespace BarkodaCevirme.Controllers
 {
     public class UploadController : Controller
     {
@@ -26,7 +26,7 @@ namespace ExcelBarcodeWebApp.Controllers
                 return View();
             }
 
-            // Optional: Validate extension (only .xls, .xlsx)
+            // Validate extension (.xls or .xlsx)
             var extension = Path.GetExtension(file.FileName);
             if (!extension.Equals(".xls", StringComparison.OrdinalIgnoreCase) &&
                 !extension.Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
@@ -63,7 +63,6 @@ namespace ExcelBarcodeWebApp.Controllers
         // GET: Upload/Preview
         public ActionResult Preview()
         {
-            // The PDF is stored in Session["GeneratedPdf"]
             if (Session["GeneratedPdf"] == null)
             {
                 return RedirectToAction("Index");
@@ -74,20 +73,17 @@ namespace ExcelBarcodeWebApp.Controllers
         // GET: Upload/GetTempPdf
         public FileResult GetTempPdf()
         {
-            // Return the PDF from session for preview
             if (Session["GeneratedPdf"] != null)
             {
                 var pdfBytes = Session["GeneratedPdf"] as byte[];
                 return File(pdfBytes, "application/pdf");
             }
-            // Return an empty file if something went wrong
             return File(new byte[0], "application/pdf");
         }
 
         // GET: Upload/Download
         public ActionResult Download()
         {
-            // Download the PDF from session
             if (Session["GeneratedPdf"] != null)
             {
                 var pdfBytes = Session["GeneratedPdf"] as byte[];

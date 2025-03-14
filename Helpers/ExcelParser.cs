@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 using System.IO;
+using System.Text;
 using ExcelDataReader;
 
-namespace ExcelBarcodeWebApp.Helpers
+namespace BarkodaCevirme.Helpers
 {
     public static class ExcelParser
     {
@@ -13,6 +13,7 @@ namespace ExcelBarcodeWebApp.Helpers
         /// </summary>
         public static List<string> Parse(Stream excelStream)
         {
+            // Register the code pages provider (make sure the NuGet package is installed)
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             var result = new List<string>();
@@ -31,7 +32,6 @@ namespace ExcelBarcodeWebApp.Helpers
                             result.Add(cellValue.ToString());
                         }
                     }
-
                     rowCount++;
                     if (rowCount >= 40) // limit to 40 rows
                     {
@@ -39,7 +39,6 @@ namespace ExcelBarcodeWebApp.Helpers
                     }
                 }
             }
-
             return result;
         }
     }

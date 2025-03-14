@@ -6,7 +6,7 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using ZXing;
 
-namespace ExcelBarcodeWebApp.Helpers
+namespace BarkodaCevirme.Helpers
 {
     public static class PdfGenerator
     {
@@ -26,18 +26,15 @@ namespace ExcelBarcodeWebApp.Helpers
                 // Create a table with 4 columns
                 var table = new PdfPTable(4);
                 table.WidthPercentage = 100;
-                table.DefaultCell.Border = Rectangle.NO_BORDER;
+                // Explicitly use iTextSharp.text.Rectangle for NO_BORDER
+                table.DefaultCell.Border = iTextSharp.text.Rectangle.NO_BORDER;
                 table.SpacingBefore = 10f;
-
-                // Adjust column widths if desired (e.g., all equal)
-                // float[] widths = new float[] { 1f, 1f, 1f, 1f };
-                // table.SetWidths(widths);
 
                 // For each item in dataList, generate a barcode cell
                 foreach (var textValue in dataList)
                 {
                     // Generate barcode image
-                    var barcodeImage = GenerateBarcodeImage(textValue);
+                    System.Drawing.Image barcodeImage = GenerateBarcodeImage(textValue);
 
                     // Convert System.Drawing.Image to iTextSharp.text.Image
                     iTextSharp.text.Image pdfImage = iTextSharp.text.Image.GetInstance(barcodeImage, System.Drawing.Imaging.ImageFormat.Png);
@@ -45,7 +42,7 @@ namespace ExcelBarcodeWebApp.Helpers
 
                     // Create a cell, add the barcode image
                     var cell = new PdfPCell();
-                    cell.Border = Rectangle.NO_BORDER;
+                    cell.Border = iTextSharp.text.Rectangle.NO_BORDER;
                     cell.VerticalAlignment = Element.ALIGN_MIDDLE;
                     cell.HorizontalAlignment = Element.ALIGN_CENTER;
 
@@ -60,13 +57,13 @@ namespace ExcelBarcodeWebApp.Helpers
                     table.AddCell(cell);
                 }
 
-                // If the last row doesn't have 4 columns, fill them
+                // If the last row doesn't have 4 columns, fill them with empty cells
                 int remainder = dataList.Count % 4;
                 if (remainder != 0)
                 {
                     for (int i = 0; i < 4 - remainder; i++)
                     {
-                        table.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
+                        table.AddCell(new PdfPCell() { Border = iTextSharp.text.Rectangle.NO_BORDER });
                     }
                 }
 

@@ -1,8 +1,8 @@
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
-using BarkodaCevirme;
+using System.Web;
 
-namespace ExcelBarcodeWebApp
+namespace BarkodaCevirme
 {
     public class MvcApplication : System.Web.HttpApplication
     {
