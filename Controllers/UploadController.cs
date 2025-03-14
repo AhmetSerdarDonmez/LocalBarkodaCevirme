@@ -50,8 +50,9 @@ namespace BarkodaCevirme.Controllers
                 // 3) Store PDF in Session for Preview/Download
                 Session["GeneratedPdf"] = pdfBytes;
 
-                // 4) Redirect to Preview
-                return RedirectToAction("Preview");
+                // 4) Return JSON response with URL to open in new tab
+                var pdfUrl = Url.Action("GetTempPdf", "Upload");
+                return Json(new { success = true, url = pdfUrl });
             }
             catch (Exception ex)
             {
