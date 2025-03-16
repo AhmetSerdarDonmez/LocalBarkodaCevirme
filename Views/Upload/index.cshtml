@@ -2,21 +2,33 @@
     ViewBag.Title = "Upload Barcode Excel";
 }
 
-<h2>Upload Excel File</h2>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Upload Excel File</h2>
+            <form id="uploadForm" action="@Url.Action("Index", "Upload")" method="post" enctype="multipart/form-data" class="form-inline">
+                @Html.AntiForgeryToken()
+                <div class="form-group mb-2">
+                    <input type="file" name="file" class="form-control-file" required />
+                </div>
+                <button type="submit" class="btn btn-primary mb-2 ml-2">Upload</button>
+            </form>
+        </div>
+    </div>
 
-<form id="uploadForm" action="@Url.Action("Index", "Upload")" method="post" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
-    <input type="file" name="file" required />
-    <button type="submit">Upload</button>
-</form>
-
-<h2>Generate PDF from Text</h2>
-
-<form id="textForm" action="@Url.Action("GenerateFromText", "Upload")" method="post">
-    @Html.AntiForgeryToken()
-    <textarea name="textData" rows="10" cols="50" required></textarea>
-    <button type="submit">Generate PDF</button>
-</form>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h2>Generate PDF from Text</h2>
+            <form id="textForm" action="@Url.Action("GenerateFromText", "Upload")" method="post">
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <textarea name="textData" rows="10" cols="50" class="form-control" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Generate PDF</button>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
