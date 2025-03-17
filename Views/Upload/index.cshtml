@@ -1,89 +1,195 @@
 ﻿@{
-    ViewBag.Title = "Upload Barcode Excel";
+    Layout = null; /* Ensures we don't pull in any navbar/links from _Layout.cshtml */
 }
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <h2>Upload Excel File</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Barkod Oluşturma Uygulaması</title>
+    <!-- Local Bootstrap CSS (installed via NuGet) -->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        /* Overall page styling */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Gray header at the top */
+        .header-title {
+            background-color: #343a40; /* Dark gray "factory" feel */
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+            .header-title h1 {
+                margin: 0;
+                font-size: 2rem;
+                font-weight: bold;
+            }
+
+            .header-title p {
+                margin: 5px 0 0;
+                font-size: 1.1rem;
+                font-weight: 300;
+            }
+
+        /* Container for the forms */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        /* Section styling for each form block */
+        .form-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        /* Headings inside each section */
+        h2 {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* File input, textareas, etc. */
+        .form-control,
+        .form-control-file {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: .5rem;
+            font-size: 1rem;
+        }
+
+            .form-control:focus,
+            .form-control-file:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 5px rgba(0,123,255,0.5);
+            }
+
+        /* Buttons */
+        .btn {
+            font-size: 1.1rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+            }
+    </style>
+</head>
+<body>
+    <!-- Gray header -->
+    <div class="header-title">
+        <h1>Barkod Oluşturma Uygulaması</h1>
+        <p>Excel barkodlarını yükleyin veya metinden barkod oluşturun</p>
+    </div>
+
+    <div class="container">
+        <!-- Excel Barkod Yükleme Bölümü -->
+        <div class="form-section">
+            <h2>Excel Barkod Yükle</h2>
             <form id="uploadForm" action="@Url.Action("Index", "Upload")" method="post" enctype="multipart/form-data" class="form-inline">
                 @Html.AntiForgeryToken()
                 <div class="form-group mb-2">
                     <input type="file" name="file" class="form-control-file" required />
                 </div>
-                <button type="submit" class="btn btn-primary mb-2 ml-2">Upload</button>
+                <button type="submit" class="btn btn-primary mb-2 ml-2">Barkodları Yükle</button>
             </form>
         </div>
-    </div>
 
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <h2>Generate PDF from Text</h2>
+        <!-- Metinden Barkod Oluşturma Bölümü -->
+        <div class="form-section">
+            <h2>Metinden Barkod Oluştur</h2>
             <form id="textForm" action="@Url.Action("GenerateFromText", "Upload")" method="post">
                 @Html.AntiForgeryToken()
                 <div class="form-group">
-                    <textarea name="textData" rows="10" cols="50" class="form-control" required></textarea>
+                    <textarea name="textData" rows="10" cols="50" class="form-control" required placeholder="Barkod oluşturmak için metni buraya girin..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary mt-2">Generate PDF</button>
+                <button type="submit" class="btn btn-primary mt-2">Barkod Oluştur</button>
             </form>
         </div>
     </div>
-</div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById('uploadForm').addEventListener('submit', function (event) {
-            event.preventDefault();
+    <!-- Local jQuery & Bootstrap JS (installed via NuGet) -->
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
 
-            var formData = new FormData(this);
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '@Url.Action("Index", "Upload")', true);
+    <script>
+        // When the page loads, wire up the AJAX form submissions
+        document.addEventListener("DOMContentLoaded", function () {
+            // Excel Barkod Yükleme (AJAX)
+            document.getElementById('uploadForm').addEventListener('submit', function (event) {
+                event.preventDefault();
 
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    if (response.success) {
-                        window.open(response.url, '_blank');
+                var formData = new FormData(this);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '@Url.Action("Index", "Upload")', true);
+
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            window.open(response.url, '_blank');
+                        } else {
+                            alert('Dosya yüklenirken hata oluştu.');
+                        }
                     } else {
-                        alert('Error uploading file.');
+                        alert('Dosya yüklenirken hata oluştu.');
                     }
-                } else {
-                    alert('Error uploading file.');
-                }
-            };
+                };
 
-            xhr.onerror = function () {
-                alert('Error uploading file.');
-            };
+                xhr.onerror = function () {
+                    alert('Dosya yüklenirken hata oluştu.');
+                };
 
-            xhr.send(formData);
-        });
+                xhr.send(formData);
+            });
 
-        document.getElementById('textForm').addEventListener('submit', function (event) {
-            event.preventDefault();
+            // Metinden Barkod Oluşturma (AJAX)
+            document.getElementById('textForm').addEventListener('submit', function (event) {
+                event.preventDefault();
 
-            var formData = new FormData(this);
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '@Url.Action("GenerateFromText", "Upload")', true);
+                var formData = new FormData(this);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '@Url.Action("GenerateFromText", "Upload")', true);
 
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    if (response.success) {
-                        window.open(response.url, '_blank');
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            window.open(response.url, '_blank');
+                        } else {
+                            alert('Barkod oluşturulurken hata oluştu.');
+                        }
                     } else {
-                        alert('Error generating PDF.');
+                        alert('Barkod oluşturulurken hata oluştu.');
                     }
-                } else {
-                    alert('Error generating PDF.');
-                }
-            };
+                };
 
-            xhr.onerror = function () {
-                alert('Error generating PDF.');
-            };
+                xhr.onerror = function () {
+                    alert('Barkod oluşturulurken hata oluştu.');
+                };
 
-            xhr.send(formData);
+                xhr.send(formData);
+            });
         });
-    });
-</script>
+    </script>
+</body>
+</html>
